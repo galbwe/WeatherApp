@@ -1,10 +1,69 @@
-import React, {useState} from 'react'
-import { View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
-import {Feather} from '@expo/vector-icons'
+import React, {useEffect, useState, } from 'react'
+import { ActivityIndicator, View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
+import {Feather, MaterialIcons} from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
+import { fetchCurrentWeather } from '../utilities/fetchWeatherData'
+import { convertKelvinToFarenheit } from '../utilities/temperature'
+import { roundToDecimalPlaces } from '../utilities/math'
+import { Config } from '../config'
+
+const apiKey = Config.OPENWEATHER_API_KEY
 
 const CurrentWeather = ({navigation}) => {
-  const [weather, setWeather] = useState(weatherType.haze)
+  const [weather, setWeather] = useState({})
+  const [description, setDescription] = useState('')
+  const [temp, setTemp] = useState('--')
+  const [feelsLike, setFeelsLike] = useState('--')
+  const [high, setHigh] = useState('--')
+  const [low, setLow] = useState('--')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  // TODO: get lat and lng from the device
+  const lat = 38.673066
+  const lon = -75.1895462
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const currentWeatherData = await fetchCurrentWeather(lat, lon, apiKey)
+        const currentWeatherMain = currentWeatherData.weather[0].main
+        const currentWeatherDesc = currentWeatherData.weather[0].description
+        const descCapitalized = currentWeatherDesc.charAt(0).toUpperCase() + currentWeatherDesc.slice(1).toLowerCase()
+        setWeather(weatherType[currentWeatherMain.toLowerCase()])
+        setDescription(descCapitalized)
+        setTemp(currentWeatherData.main.temp)
+        setFeelsLike(currentWeatherData.main.feels_like)
+        setHigh(currentWeatherData.main.temp_max)
+        setLow(currentWeatherData.main.temp_min)
+      } catch(error) {
+        console.error("Could not fetch current weather data")
+        console.error(error)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (loading) {
+      fetchData()
+    }
+  }, [])
+
+  if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center'}}>
+        <ActivityIndicator size={'large'}/>
+      </View>      
+    )
+  } else if (error) {
+    // render an error message
+    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+      <MaterialIcons name="error" size={40} color="red" />
+      <Text>
+        I don't mean to rain on your parade, but we have a problem.
+      </Text>
+    </View>
+  }
   return (
     <SafeAreaView style={styles.wrapper}>
         <ImageBackground
@@ -13,16 +72,16 @@ const CurrentWeather = ({navigation}) => {
         >
           <View style={styles.container}>
             <Feather name={weather.icon} size={100} color='white' />
-            <Text style={styles.temp}>6</Text>
-            <Text style={styles.feels}>Feels like 5</Text>
+            <Text style={styles.temp}>{roundToDecimalPlaces(convertKelvinToFarenheit(temp))}</Text>
+            <Text style={styles.feels}>Feels like {roundToDecimalPlaces(convertKelvinToFarenheit(feelsLike))}</Text>
             <View style={styles.highLowWrapper}>
-              <Text style={styles.highLow}>High: 7</Text>
-              <Text style={styles.highLow}>Low: 4</Text>
+              <Text style={styles.highLow}>High: {roundToDecimalPlaces(convertKelvinToFarenheit(high))}</Text>
+              <Text style={styles.highLow}>Low: {roundToDecimalPlaces(convertKelvinToFarenheit(low))}</Text>
             </View>
           </View>
           <View style={styles.bodyWrapper}>
             <Text style={styles.description}>
-              It's Hazy
+              {description}
             </Text>
             <Text style={styles.message}>{weather.message}</Text>
           </View>
