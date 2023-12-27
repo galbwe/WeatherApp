@@ -6,6 +6,7 @@ import { fetchCurrentWeather } from '../utilities/fetchWeatherData'
 import { convertKelvinToFarenheit } from '../utilities/temperature'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { Config } from '../config'
+import * as Location from 'expo-location'
 
 const apiKey = Config.OPENWEATHER_API_KEY
 
@@ -19,33 +20,44 @@ const CurrentWeather = ({navigation}) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  // TODO: get lat and lng from the device
-  const lat = 38.673066
-  const lon = -75.1895462
+  const getGeolocation = async () => {
+    // request user's permission to access location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error('No permission to access device location.')
+    }
+    // get user's location from the device
+    let location = await Location.getCurrentPositionAsync({});
+    return {lat: location.coords.latitude, lon: location.coords.longitude}
+  }
+
+  const fetchData = async (lat, lon) => {
+    try {
+      const currentWeatherData = await fetchCurrentWeather(lat, lon, apiKey)
+      const currentWeatherMain = currentWeatherData.weather[0].main
+      const currentWeatherDesc = currentWeatherData.weather[0].description
+      const descCapitalized = currentWeatherDesc.charAt(0).toUpperCase() + currentWeatherDesc.slice(1).toLowerCase()
+      setWeather(weatherType[currentWeatherMain.toLowerCase()])
+      setDescription(descCapitalized)
+      setTemp(currentWeatherData.main.temp)
+      setFeelsLike(currentWeatherData.main.feels_like)
+      setHigh(currentWeatherData.main.temp_max)
+      setLow(currentWeatherData.main.temp_min)
+    } catch(error) {
+      console.error("Could not fetch current weather data")
+      console.error(error)
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const currentWeatherData = await fetchCurrentWeather(lat, lon, apiKey)
-        const currentWeatherMain = currentWeatherData.weather[0].main
-        const currentWeatherDesc = currentWeatherData.weather[0].description
-        const descCapitalized = currentWeatherDesc.charAt(0).toUpperCase() + currentWeatherDesc.slice(1).toLowerCase()
-        setWeather(weatherType[currentWeatherMain.toLowerCase()])
-        setDescription(descCapitalized)
-        setTemp(currentWeatherData.main.temp)
-        setFeelsLike(currentWeatherData.main.feels_like)
-        setHigh(currentWeatherData.main.temp_max)
-        setLow(currentWeatherData.main.temp_min)
-      } catch(error) {
-        console.error("Could not fetch current weather data")
-        console.error(error)
-        setError(true)
-      } finally {
-        setLoading(false)
-      }
-    }
     if (loading) {
-      fetchData()
+      (async () => {
+        const {lat, lon} = await getGeolocation()
+        await fetchData(lat, lon)
+      })()
     }
   }, [])
 
@@ -60,7 +72,7 @@ const CurrentWeather = ({navigation}) => {
     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
       <MaterialIcons name="error" size={40} color="red" />
       <Text>
-        I don't mean to rain on your parade, but we have a problem.
+        Not to rain on your parade, but we have a problem.
       </Text>
     </View>
   }
