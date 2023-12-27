@@ -1,5 +1,8 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, FlatList, ActivityIndicator, StatusBar, ImageBackground} from 'react-native'
+import React, {useState, useEffect} from 'react'
+import { ActivityIndicatorBase, SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, ImageBackground, View} from 'react-native'
+import { fetchWeatherForecast } from '../utilities/fetchWeatherData'
+import { getGeolocation } from '../utilities/geolocation'
+import { Config } from '../config'
 
 import ListItem from '../components/ListItem'
 
@@ -14,13 +17,32 @@ const styles = StyleSheet.create({
 })
 
 const UpcomingWeather = () => {
+    const [loading, setLoading] = useState(true)
+    const [weatherForecast, setWeatherForecast] = useState([])
+    
+    useEffect(() => {
+        (async () => {
+            const {lat, lon} = await getGeolocation()
+            const data = await fetchWeatherForecast(lat, lon, Config.OPENWEATHER_API_KEY)
+            setWeatherForecast(data)
+            setLoading(false)
+        })()
+    })
+
+    if (loading) {
+        return (
+            <View style={{flex: 1, justifyContent: 'center'}}>
+                <ActivityIndicator size={'large'}/>
+            </View>
+        )
+    }
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
                 source={require('../../assets/upcoming-background.jpeg')} 
                 style={styles.background}>
             <FlatList
-                data={DATA}
+                data={weatherForecast}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.dt_txt}
                 ListEmptyComponent={() => <ActivityIndicator size="large"/>}

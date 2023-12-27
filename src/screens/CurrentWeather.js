@@ -6,7 +6,7 @@ import { fetchCurrentWeather } from '../utilities/fetchWeatherData'
 import { convertKelvinToFarenheit } from '../utilities/temperature'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { Config } from '../config'
-import * as Location from 'expo-location'
+import { getGeolocation } from '../utilities/geolocation'
 
 const apiKey = Config.OPENWEATHER_API_KEY
 
@@ -20,16 +20,6 @@ const CurrentWeather = ({navigation}) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const getGeolocation = async () => {
-    // request user's permission to access location
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.error('No permission to access device location.')
-    }
-    // get user's location from the device
-    let location = await Location.getCurrentPositionAsync({});
-    return {lat: location.coords.latitude, lon: location.coords.longitude}
-  }
 
   const fetchData = async (lat, lon) => {
     try {
