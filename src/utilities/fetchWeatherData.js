@@ -9,6 +9,12 @@ export const fetchWeatherForecast = async (lat, lon, apiKey) => {
     return data.list
 }
 
+export const fetchCityData = async (lat, lon, apiKey) => {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}` 
+    const data = await makeGetRequest(url)
+    return data.city
+}
+
 const makeGetRequest = async (url) => {
     console.log(url)
     const response = await fetch(url)

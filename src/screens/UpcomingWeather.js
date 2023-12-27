@@ -27,7 +27,7 @@ const UpcomingWeather = () => {
             setWeatherForecast(data)
             setLoading(false)
         })()
-    })
+    }, [])
 
     if (loading) {
         return (
