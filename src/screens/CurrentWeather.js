@@ -1,13 +1,11 @@
 import { ActivityIndicator, View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
-import { useWeatherForecast } from '../hooks/useWeatherForecast'
 import { convertKelvinToFarenheit } from '../utilities/temperature'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { capitalize } from '../utilities/strings'
 
-const CurrentWeather = ({navigation}) => {
-  const {current, loading} = useWeatherForecast()
+const CurrentWeather = ({current, loading, navigation}) => {
 
   if (loading) {
     return (

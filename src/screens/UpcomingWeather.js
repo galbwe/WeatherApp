@@ -1,13 +1,10 @@
 import { SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, ImageBackground, View} from 'react-native'
-import { useWeatherForecast } from '../hooks/useWeatherForecast'
 
 import ListItem from '../components/ListItem'
 
 
-const UpcomingWeather = () => {
+const UpcomingWeather = ({forecast, city, loading, navigation}) => {
     
-    const {forecast, city, loading} = useWeatherForecast()
-
     if (loading) {
         return (
             <View style={{flex: 1, justifyContent: 'center'}}>

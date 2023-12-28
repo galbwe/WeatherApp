@@ -1,10 +1,8 @@
 import {React} from 'react'
 import { ActivityIndicator, SafeAreaView, Text, StyleSheet, ImageBackground, StatusBar, View } from 'react-native'
 import IconText from '../components/IconText'
-import { useWeatherForecast } from '../hooks/useWeatherForecast'
 
-const City = () => {
-    const {city, loading} = useWeatherForecast()
+const City = ({city, loading, navigation}) => {
 
     if (loading) {
         return (
