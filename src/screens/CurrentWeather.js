@@ -1,55 +1,13 @@
-import React, {useEffect, useState, } from 'react'
 import { ActivityIndicator, View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
-import {Feather, MaterialIcons} from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
-import { fetchCurrentWeather } from '../utilities/fetchWeatherData'
+import { useWeatherForecast } from '../hooks/useWeatherForecast'
 import { convertKelvinToFarenheit } from '../utilities/temperature'
 import { roundToDecimalPlaces } from '../utilities/math'
-import { Config } from '../config'
-import { getGeolocation } from '../utilities/geolocation'
-
-const apiKey = Config.OPENWEATHER_API_KEY
+import { capitalize } from '../utilities/strings'
 
 const CurrentWeather = ({navigation}) => {
-  const [weather, setWeather] = useState({})
-  const [description, setDescription] = useState('')
-  const [temp, setTemp] = useState('--')
-  const [feelsLike, setFeelsLike] = useState('--')
-  const [high, setHigh] = useState('--')
-  const [low, setLow] = useState('--')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-
-
-  const fetchData = async (lat, lon) => {
-    try {
-      const currentWeatherData = await fetchCurrentWeather(lat, lon, apiKey)
-      const currentWeatherMain = currentWeatherData.weather[0].main
-      const currentWeatherDesc = currentWeatherData.weather[0].description
-      const descCapitalized = currentWeatherDesc.charAt(0).toUpperCase() + currentWeatherDesc.slice(1).toLowerCase()
-      setWeather(weatherType[currentWeatherMain.toLowerCase()])
-      setDescription(descCapitalized)
-      setTemp(currentWeatherData.main.temp)
-      setFeelsLike(currentWeatherData.main.feels_like)
-      setHigh(currentWeatherData.main.temp_max)
-      setLow(currentWeatherData.main.temp_min)
-    } catch(error) {
-      console.error("Could not fetch current weather data")
-      console.error(error)
-      setError(true)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (loading) {
-      (async () => {
-        const {lat, lon} = await getGeolocation()
-        await fetchData(lat, lon)
-      })()
-    }
-  }, [])
+  const {current, loading} = useWeatherForecast()
 
   if (loading) {
     return (
@@ -57,15 +15,16 @@ const CurrentWeather = ({navigation}) => {
         <ActivityIndicator size={'large'}/>
       </View>      
     )
-  } else if (error) {
-    // render an error message
-    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-      <MaterialIcons name="error" size={40} color="red" />
-      <Text>
-        Not to rain on your parade, but we have a problem.
-      </Text>
-    </View>
   }
+
+  // TODO: add the option to display temperatures in Celsius
+  const temp = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp))
+  const feelsLike = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.feels_like))
+  const high = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_max))
+  const low = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_min))
+  const weather = weatherType[current.weather[0].main.toLowerCase()]
+  const description = capitalize(current.weather[0].description)
+
   return (
     <SafeAreaView style={styles.wrapper}>
         <ImageBackground
@@ -74,11 +33,11 @@ const CurrentWeather = ({navigation}) => {
         >
           <View style={styles.container}>
             <Feather name={weather.icon} size={100} color='white' />
-            <Text style={styles.temp}>{roundToDecimalPlaces(convertKelvinToFarenheit(temp))}</Text>
-            <Text style={styles.feels}>Feels like {roundToDecimalPlaces(convertKelvinToFarenheit(feelsLike))}</Text>
+            <Text style={styles.temp}>{temp}</Text>
+            <Text style={styles.feels}>Feels like {feelsLike}</Text>
             <View style={styles.highLowWrapper}>
-              <Text style={styles.highLow}>High: {roundToDecimalPlaces(convertKelvinToFarenheit(high))}</Text>
-              <Text style={styles.highLow}>Low: {roundToDecimalPlaces(convertKelvinToFarenheit(low))}</Text>
+              <Text style={styles.highLow}>High: {high}</Text>
+              <Text style={styles.highLow}>Low: {low}</Text>
             </View>
           </View>
           <View style={styles.bodyWrapper}>

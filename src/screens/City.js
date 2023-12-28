@@ -1,47 +1,30 @@
-import {React, useState, useEffect} from 'react'
+import {React} from 'react'
 import { ActivityIndicator, SafeAreaView, Text, StyleSheet, ImageBackground, StatusBar, View } from 'react-native'
 import IconText from '../components/IconText'
-import { getGeolocation } from '../utilities/geolocation'
-import { fetchCityData } from '../utilities/fetchWeatherData'
-import { Config } from '../config'
+import { useWeatherForecast } from '../hooks/useWeatherForecast'
 
 const City = () => {
-    const [loading, setLoading] = useState(true)
-    const [cityData, setCityData] = useState(null)
-
-    useEffect(() => {
-        (
-            async () => {
-                const {lat, lon} = await getGeolocation()
-                const data = await fetchCityData(lat, lon, Config.OPENWEATHER_API_KEY)
-                setCityData(data)
-                setLoading(false)
-            }
-        )()
-        
-    }, [])
+    const {city, loading} = useWeatherForecast()
 
     if (loading) {
         return (
             <View style={{flex: 1, justifyContent: 'center'}}>
                 <ActivityIndicator size={'large'}/>
-            </View>      
-        )
+            </View>
+        )        
     }
 
-    const {sunrise, sunset, population, country, name: city, timezone} = cityData
-    
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground
                 source={require("../../assets/city-background.jpeg")} 
                 style={styles.background}
             >
-                <Text style={[styles.cityText, styles.cityName]}>{city}</Text>
-                <Text style={[styles.cityText, styles.countryName]}>{country}</Text>
+                <Text style={[styles.cityText, styles.cityName]}>{city.name}</Text>
+                <Text style={[styles.cityText, styles.countryName]}>{city.country}</Text>
                 <View style={styles.populationWrapper}>
                     <IconText 
-                        text={population} 
+                        text={city.population} 
                         icon={'user'} 
                         iconSize={50} 
                         style={styles.populationText}
@@ -49,13 +32,13 @@ const City = () => {
                 </View>
                 <View style={styles.riseSetWrapper}>
                     <IconText 
-                        text={sunrise} 
+                        text={city.sunrise} 
                         icon={'sunrise'} 
                         iconSize={50} 
                         style={styles.riseSetText}
                     />
                     <IconText 
-                        text={sunset} 
+                        text={city.sunset} 
                         icon={'sunset'} 
                         iconSize={50} 
                         style={styles.riseSetText}
