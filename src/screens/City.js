@@ -2,15 +2,7 @@ import {React} from 'react'
 import { ActivityIndicator, SafeAreaView, Text, StyleSheet, ImageBackground, StatusBar, View } from 'react-native'
 import IconText from '../components/IconText'
 
-const City = ({city, loading, navigation}) => {
-
-    if (loading) {
-        return (
-            <View style={{flex: 1, justifyContent: 'center'}}>
-                <ActivityIndicator size={'large'}/>
-            </View>
-        )        
-    }
+const City = ({city, navigation}) => {
 
     return (
         <SafeAreaView style={styles.container}>

@@ -3,15 +3,7 @@ import { SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, Image
 import ListItem from '../components/ListItem'
 
 
-const UpcomingWeather = ({forecast, city, loading, navigation}) => {
-    
-    if (loading) {
-        return (
-            <View style={{flex: 1, justifyContent: 'center'}}>
-                <ActivityIndicator size={'large'}/>
-            </View>
-        )
-    }
+const UpcomingWeather = ({forecast, city, navigation}) => {
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 

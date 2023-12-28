@@ -7,6 +7,7 @@ import UpcomingWeather from '../screens/UpcomingWeather'
 import City from '../screens/City'
 import CurrentWeather from '../screens/CurrentWeather'
 import { useWeatherForecast } from '../hooks/useWeatherForecast'
+import { LoadingSpinner } from './LoadingSpinner'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -15,32 +16,36 @@ const NavTabs = () => {
 
     const CurrentWeatherWrapper = ({navigation}) => {
         return (
-            <CurrentWeather 
-                current={current} 
-                loading={loading} 
-                navigation={navigation}
-            />    
+            <LoadingSpinner loading={loading}>
+                <CurrentWeather 
+                    current={current} 
+                    navigation={navigation}
+                />    
+            </LoadingSpinner>
         )
     }
 
     const UpcomingWeatherWrapper = ({navigation}) => {
         return (
-            <UpcomingWeather
-                forecast={forecast}
-                city={city}
-                loading={loading}
-                navigation={navigation}
-            />
+            <LoadingSpinner loading={loading}>
+                <UpcomingWeather
+                    forecast={forecast}
+                    city={city}
+                    navigation={navigation}
+                />
+            </LoadingSpinner>
         )
     }
 
     const CityWrapper = ({navigation}) => {
         return (
-            <City
-                city={city}
-                loading={loading}
-                navigation={navigation}
-            />
+            <LoadingSpinner loading={loading}>
+                <City
+                    city={city}
+                    loading={loading}
+                    navigation={navigation}
+                />
+            </LoadingSpinner>
         )
     }
 

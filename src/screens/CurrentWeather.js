@@ -1,4 +1,4 @@
-import { ActivityIndicator, View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
 import { convertKelvinToFarenheit } from '../utilities/temperature'
@@ -6,14 +6,6 @@ import { roundToDecimalPlaces } from '../utilities/math'
 import { capitalize } from '../utilities/strings'
 
 const CurrentWeather = ({current, loading, navigation}) => {
-
-  if (loading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center'}}>
-        <ActivityIndicator size={'large'}/>
-      </View>      
-    )
-  }
 
   // TODO: add the option to display temperatures in Celsius
   const temp = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp))
