@@ -1,4 +1,3 @@
-import {useState} from 'react'
 import { SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, ImageBackground, View} from 'react-native'
 import { DateTime } from 'luxon'
 
@@ -9,15 +8,14 @@ import { weatherType } from '../utilities/weatherType'
 import { UnitToggle } from '../components/UnitToggle'
 
 
-const UpcomingWeather = ({forecast, city, navigation}) => {
-    const [metric, setMetric] = useState(false)
+const UpcomingWeather = ({forecast, city, metric, toggleUnits, navigation}) => {
 
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
                 source={require('../../assets/upcoming-background.jpeg')} 
                 style={styles.background}>
-                <UnitToggle metric={metric} onPress={() => setMetric(!metric)}/>
+                <UnitToggle metric={metric} onPress={toggleUnits}/>
                 <FlatList
                     data={forecast}
                     renderItem={renderItem(city.timezone, metric)}

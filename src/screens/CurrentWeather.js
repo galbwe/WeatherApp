@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { View, Text, SafeAreaView, StyleSheet, ImageBackground, Switch, StatusBar } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
@@ -15,8 +14,7 @@ import { capitalize } from '../utilities/strings'
 import { UnitToggle } from '../components/UnitToggle'
 
 
-const CurrentWeather = ({current, navigation}) => {
-  const [metric, setMetric] = useState(false)
+const CurrentWeather = ({current, metric, toggleUnits, navigation}) => {
 
   const convertTempUnits = metric ? convertKelvinToCelsius : convertKelvinToFarenheit
   const tempUnit = metric ? 'C': 'F'
@@ -43,7 +41,7 @@ const CurrentWeather = ({current, navigation}) => {
           source={getWeatherBackgroundImage(weather.name)}
           style={styles.background}
         >
-          <UnitToggle metric={metric} onPress={() => setMetric(!metric)}/>
+          <UnitToggle metric={metric} onPress={toggleUnits}/>
           <View style={styles.container}>
 
             <Feather name={weather.icon} size={100} color='white' />

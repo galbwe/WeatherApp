@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {StyleSheet} from 'react-native'
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs'
 import {Feather, Octicons, MaterialCommunityIcons} from '@expo/vector-icons'
@@ -12,7 +12,11 @@ import { LoadingSpinner } from './LoadingSpinner'
 const Tab = createMaterialTopTabNavigator()
 
 const NavTabs = () => {
+    // TODO: get this state out of NavTabs and into the App component
     const {current, forecast, city, loading} = useWeatherForecast()
+    const [metric, setMetric] = useState(false)
+
+    const toggleUnits = () => setMetric(!metric)
 
     const CurrentWeatherWrapper = ({navigation}) => {
         return (
@@ -20,6 +24,8 @@ const NavTabs = () => {
                 <CurrentWeather 
                     current={current} 
                     navigation={navigation}
+                    metric={metric}
+                    toggleUnits={toggleUnits}
                 />    
             </LoadingSpinner>
         )
@@ -32,6 +38,8 @@ const NavTabs = () => {
                     forecast={forecast}
                     city={city}
                     navigation={navigation}
+                    metric={metric}
+                    toggleUnits={toggleUnits}
                 />
             </LoadingSpinner>
         )
