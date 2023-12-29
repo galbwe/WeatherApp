@@ -12,6 +12,7 @@ import {
 } from '../utilities/unitConversions'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { capitalize } from '../utilities/strings'
+import { UnitToggle } from '../components/UnitToggle'
 
 
 const CurrentWeather = ({current, navigation}) => {
@@ -42,16 +43,7 @@ const CurrentWeather = ({current, navigation}) => {
           source={getWeatherBackgroundImage(weather.name)}
           style={styles.background}
         >
-          <View style={styles.unitToggle}>
-            <Text style={styles.unitText}>{metric ? 'metric' : 'imperial'}</Text>
-            <Switch 
-              trackColor={{false: '#767577', true: 'white'}}
-              thumbColor={metric ? 'purple' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={() => setMetric(!metric)}
-              value={metric} 
-            />
-          </View>
+          <UnitToggle metric={metric} onPress={() => setMetric(!metric)}/>
           <View style={styles.container}>
 
             <Feather name={weather.icon} size={100} color='white' />
@@ -129,19 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
   },
-  unitToggle: {
-    width: '100%',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  unitText: {
-    color: 'grey',
-    fontSize: 18,
-  }
 })
 
 export default CurrentWeather
