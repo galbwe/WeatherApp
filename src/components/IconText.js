@@ -1,5 +1,5 @@
 import {React} from 'react'
-import {Text, StyleSheet } from 'react-native'
+import {Text, StyleSheet, View} from 'react-native'
 import { Feather } from '@expo/vector-icons'
 
 styles = StyleSheet.create({
@@ -11,7 +11,7 @@ styles = StyleSheet.create({
 
 const IconText = ({text, icon, iconSize, iconColor, style}) => {
     return (
-        <>
+        <View style={{flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
             <Feather 
                 name={icon} 
                 size={iconSize} 
@@ -20,7 +20,7 @@ const IconText = ({text, icon, iconSize, iconColor, style}) => {
             <Text style={getTextStyle(style, styles.text)}>
                 {text}
             </Text>
-        </>
+        </ View>
     )
 }
 

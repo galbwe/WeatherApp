@@ -1,6 +1,10 @@
 import { SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, ImageBackground, View} from 'react-native'
+import { DateTime } from 'luxon'
 
 import ListItem from '../components/ListItem'
+import { roundToDecimalPlaces } from '../utilities/math'
+import { convertKelvinToFarenheit } from '../utilities/unitConversions'
+import { weatherType } from '../utilities/weatherType'
 
 
 const UpcomingWeather = ({forecast, city, navigation}) => {
@@ -11,7 +15,7 @@ const UpcomingWeather = ({forecast, city, navigation}) => {
                 style={styles.background}>
             <FlatList
                 data={forecast}
-                renderItem={renderItem}
+                renderItem={renderItem(city.timezone)}
                 keyExtractor={(item) => item.dt_txt}
                 ListEmptyComponent={() => <ActivityIndicator size="large"/>}
             />
@@ -20,15 +24,30 @@ const UpcomingWeather = ({forecast, city, navigation}) => {
     )
 }
 
-const renderItem = ({item}) => {
+const renderItem = (timezone) => ({item}) => {
+    const temp = roundToDecimalPlaces(convertKelvinToFarenheit(item.main.temp))
+    const weather = weatherType[item.weather[0].main.toLowerCase()]
+    const datetime = renderTime(item.dt, timezone)
     return (
         <ListItem
             description={item.weather[0].main}
-            datetime={item.dt_txt}
-            tempMin={item.main.temp_min}
-            tempMax={item.main.temp_max}
+            datetime={datetime}
+            temp={temp}
+            icon={weather.icon}
         />
     )
+}
+
+const renderTime = (seconds, timezoneSeconds) => {
+    const dt = DateTime.fromSeconds(seconds)
+    const now = DateTime.now()
+    if (now.month === dt.month && now.day === dt.day) {
+        return 'Today, ' + dt.toLocaleString({hour: 'numeric'})
+    } else if (dt.day - now.day === 1) {
+        return 'Tomorrow, ' +  dt.toLocaleString({hour: 'numeric'})
+    } else {
+        return dt.toLocaleString({weekday: 'long', hour: 'numeric'})
+    }
 }
 
 const styles = StyleSheet.create({

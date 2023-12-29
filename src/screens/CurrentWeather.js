@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
-import { convertKelvinToFarenheit } from '../utilities/temperature'
+import { convertKelvinToFarenheit, convertMetersPerSecondToMilesPerHour, convertMetersToFeet, convertFeetToMiles } from '../utilities/unitConversions'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { capitalize } from '../utilities/strings'
 
@@ -10,10 +10,16 @@ const CurrentWeather = ({current, loading, navigation}) => {
   // TODO: add the option to display temperatures in Celsius
   const temp = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp))
   const feelsLike = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.feels_like))
-  const high = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_max))
-  const low = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_min))
+  const tempUnit = 'F'
+  // const high = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_max))
+  // const low = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_min))
   const weather = weatherType[current.weather[0].main.toLowerCase()]
   const description = capitalize(current.weather[0].description)
+  const wind = roundToDecimalPlaces(convertMetersPerSecondToMilesPerHour(current.wind.speed))
+  const windUnit = 'mph'
+  // const wind = current.wind.speed
+  const visibilityFeet = convertMetersToFeet(current.visibility)
+  const visibilityMiles = roundToDecimalPlaces(convertFeetToMiles(visibilityFeet))
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -23,11 +29,16 @@ const CurrentWeather = ({current, loading, navigation}) => {
         >
           <View style={styles.container}>
             <Feather name={weather.icon} size={100} color='white' />
-            <Text style={styles.temp}>{temp}</Text>
-            <Text style={styles.feels}>Feels like {feelsLike}</Text>
+            <Text style={styles.temp}>{temp}&#176;{tempUnit}</Text>
+            <Text style={styles.feels}>Feels like {feelsLike}&#176;{tempUnit}</Text>
             <View style={styles.highLowWrapper}>
-              <Text style={styles.highLow}>High: {high}</Text>
-              <Text style={styles.highLow}>Low: {low}</Text>
+              <Text style={styles.highLow}>wind: {wind} {windUnit}</Text>
+              {visibilityMiles > 0 ? (
+                <Text style={styles.highLow}>visibility: {visibilityMiles} mi</Text>
+              ) : (
+                <Text style={styles.highLow}>visibility: {roundToDecimalPlaces(visibilityFeet)} ft</Text>
+              )}
+              
             </View>
           </View>
           <View style={styles.bodyWrapper}>
@@ -78,7 +89,8 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   highLowWrapper: {
-    flexDirection: 'row',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
   },
   description: {
     fontSize: 48,

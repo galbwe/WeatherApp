@@ -3,18 +3,30 @@ import {React} from 'react'
 import {Text, View, StyleSheet} from 'react-native'
 import { Feather } from '@expo/vector-icons'
 
+const ListItem = ({datetime, temp, description, icon}) => {
+    return (
+        <View style={styles.item}>
+            <Text style={styles.date}>{datetime}</Text>
+            <Text style={styles.temp}>{temp}&#176;F</Text>
+            <Text style={styles.temp}>{description}</Text>
+            <Feather name={icon} size={50} color={'white'}/>
+        </View>
+    )
+}
 
 const styles = StyleSheet.create({
     item: {
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 20,
+        marginVertical: 4,
+        marginHorizontal: 8,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        borderWidth: 5,
         borderColor: 'white',
-        backgroundColor: 'pink',
+        borderWidth: 2,
+        borderRadius: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
     },
     temp: {
         color: 'white',
@@ -30,18 +42,5 @@ const styles = StyleSheet.create({
         padding: 20,
     },
 })
-
-
-const ListItem = ({description, datetime, tempMin, tempMax}) => {
-    return (
-        <View style={styles.item}>
-            <Feather name={'sun'} size={50} color={'white'}/>
-            <Text style={styles.date}>{datetime}</Text>
-            <Text style={styles.temp}>{tempMin}</Text>
-            <Text style={styles.temp}>{tempMax}</Text>
-        </View>
-    )
-}
-
 
 export default ListItem
