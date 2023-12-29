@@ -1,25 +1,40 @@
-import { View, Text, SafeAreaView, StyleSheet, ImageBackground } from 'react-native'
+import { useState } from 'react'
+import { View, Text, SafeAreaView, StyleSheet, ImageBackground, Switch, StatusBar } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { weatherType, getWeatherBackgroundImage } from '../utilities/weatherType'
-import { convertKelvinToFarenheit, convertMetersPerSecondToMilesPerHour, convertMetersToFeet, convertFeetToMiles } from '../utilities/unitConversions'
+import { 
+  convertKelvinToFarenheit, 
+  convertKelvinToCelsius,
+  convertMetersPerSecondToMilesPerHour, 
+  convertMetersToFeet, 
+  convertFeetToMiles, 
+  convertMetersToKilometers
+} from '../utilities/unitConversions'
 import { roundToDecimalPlaces } from '../utilities/math'
 import { capitalize } from '../utilities/strings'
 
-const CurrentWeather = ({current, loading, navigation}) => {
 
-  // TODO: add the option to display temperatures in Celsius
-  const temp = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp))
-  const feelsLike = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.feels_like))
-  const tempUnit = 'F'
-  // const high = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_max))
-  // const low = roundToDecimalPlaces(convertKelvinToFarenheit(current.main.temp_min))
+const CurrentWeather = ({current, navigation}) => {
+  const [metric, setMetric] = useState(false)
+
+  const convertTempUnits = metric ? convertKelvinToCelsius : convertKelvinToFarenheit
+  const tempUnit = metric ? 'C': 'F'
+  const temp = roundToDecimalPlaces(convertTempUnits(current.main.temp))
+  const feelsLike = roundToDecimalPlaces(convertTempUnits(current.main.feels_like))
+
+  const convertWindSpeedUnits = metric ? x => x : convertMetersPerSecondToMilesPerHour
+  const windSpeedUnit = metric ? 'm/s' : 'mph'
+  const windSpeed = roundToDecimalPlaces(convertWindSpeedUnits(current.wind.speed))
+
+  const convertVisibility = metric ? x => x : convertMetersToFeet
+  const convertVisibilitySmallToVisibilityBig = metric ? convertMetersToKilometers : convertFeetToMiles
+  const visibilitySmall = convertVisibility(current.visibility)
+  const visibilitySmallUnit = metric ? 'm' : 'ft'
+  const visibilityBig = roundToDecimalPlaces(convertVisibilitySmallToVisibilityBig(visibilitySmall)) 
+  const visibilityBigUnit = metric ? 'km' : 'mi'
+
   const weather = weatherType[current.weather[0].main.toLowerCase()]
   const description = capitalize(current.weather[0].description)
-  const wind = roundToDecimalPlaces(convertMetersPerSecondToMilesPerHour(current.wind.speed))
-  const windUnit = 'mph'
-  // const wind = current.wind.speed
-  const visibilityFeet = convertMetersToFeet(current.visibility)
-  const visibilityMiles = roundToDecimalPlaces(convertFeetToMiles(visibilityFeet))
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -27,19 +42,31 @@ const CurrentWeather = ({current, loading, navigation}) => {
           source={getWeatherBackgroundImage(weather.name)}
           style={styles.background}
         >
+          <View style={styles.unitToggle}>
+            <Text style={styles.unitText}>{metric ? 'metric' : 'imperial'}</Text>
+            <Switch 
+              trackColor={{false: '#767577', true: 'white'}}
+              thumbColor={metric ? 'purple' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={() => setMetric(!metric)}
+              value={metric} 
+            />
+          </View>
           <View style={styles.container}>
+
             <Feather name={weather.icon} size={100} color='white' />
             <Text style={styles.temp}>{temp}&#176;{tempUnit}</Text>
             <Text style={styles.feels}>Feels like {feelsLike}&#176;{tempUnit}</Text>
             <View style={styles.highLowWrapper}>
-              <Text style={styles.highLow}>wind: {wind} {windUnit}</Text>
-              {visibilityMiles > 0 ? (
-                <Text style={styles.highLow}>visibility: {visibilityMiles} mi</Text>
+              <Text style={styles.highLow}>wind: {windSpeed} {windSpeedUnit}</Text>
+              {visibilityBig > 0 ? (
+                <Text style={styles.highLow}>visibility: {visibilityBig} {visibilityBigUnit}</Text>
               ) : (
-                <Text style={styles.highLow}>visibility: {roundToDecimalPlaces(visibilityFeet)} ft</Text>
+                <Text style={styles.highLow}>visibility: {roundToDecimalPlaces(visibilitySmall)} {visibilitySmallUnit}</Text>
               )}
               
             </View>
+
           </View>
           <View style={styles.bodyWrapper}>
             <Text style={styles.description}>
@@ -56,7 +83,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: 'white',
-    paddingTop: 40, 
+    marginTop: StatusBar.currentHeight || 0,
   },
   background: {
     flex: 1,
@@ -102,6 +129,19 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
   },
+  unitToggle: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  unitText: {
+    color: 'grey',
+    fontSize: 18,
+  }
 })
 
 export default CurrentWeather
