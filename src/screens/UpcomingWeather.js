@@ -1,31 +1,39 @@
+import {useState} from 'react'
 import { SafeAreaView, StyleSheet, FlatList, ActivityIndicator, StatusBar, ImageBackground, View} from 'react-native'
 import { DateTime } from 'luxon'
 
 import ListItem from '../components/ListItem'
 import { roundToDecimalPlaces } from '../utilities/math'
-import { convertKelvinToFarenheit } from '../utilities/unitConversions'
+import { convertKelvinToFarenheit, convertKelvinToCelsius } from '../utilities/unitConversions'
 import { weatherType } from '../utilities/weatherType'
+import { UnitToggle } from '../components/UnitToggle'
 
 
 const UpcomingWeather = ({forecast, city, navigation}) => {
+    const [metric, setMetric] = useState(false)
+
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
                 source={require('../../assets/upcoming-background.jpeg')} 
                 style={styles.background}>
-            <FlatList
-                data={forecast}
-                renderItem={renderItem(city.timezone)}
-                keyExtractor={(item) => item.dt_txt}
-                ListEmptyComponent={() => <ActivityIndicator size="large"/>}
-            />
+                <UnitToggle metric={metric} onPress={() => setMetric(!metric)}/>
+                <FlatList
+                    data={forecast}
+                    renderItem={renderItem(city.timezone, metric)}
+                    keyExtractor={(item) => item.dt_txt}
+                    ListEmptyComponent={() => <ActivityIndicator size="large"/>}
+                />
             </ImageBackground>
         </SafeAreaView>
     )
 }
 
-const renderItem = (timezone) => ({item}) => {
-    const temp = roundToDecimalPlaces(convertKelvinToFarenheit(item.main.temp))
+const renderItem = (timezone, metric) => ({item}) => {
+    const convertTempUnits = metric ? convertKelvinToCelsius : convertKelvinToFarenheit
+    const temp = roundToDecimalPlaces(convertTempUnits(item.main.temp))
+    const tempUnit = metric ? 'C' : 'F'
+
     const weather = weatherType[item.weather[0].main.toLowerCase()]
     const datetime = renderTime(item.dt, timezone)
     return (
@@ -33,6 +41,7 @@ const renderItem = (timezone) => ({item}) => {
             description={item.weather[0].main}
             datetime={datetime}
             temp={temp}
+            unit={tempUnit}
             icon={weather.icon}
         />
     )

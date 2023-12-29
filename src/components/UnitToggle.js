@@ -9,7 +9,7 @@ export const UnitToggle = ({metric, onPress}) => {
             thumbColor={metric ? 'purple' : 'purple'}
             ios_backgroundColor="#3e3e3e"
             onValueChange={onPress}
-            value={metric} 
+            value={metric}
             />
             <Text style={metric ? styles.unitTextActive : styles.unitTextInactive}>metric</Text>
         </View>

@@ -3,11 +3,11 @@ import {React} from 'react'
 import {Text, View, StyleSheet} from 'react-native'
 import { Feather } from '@expo/vector-icons'
 
-const ListItem = ({datetime, temp, description, icon}) => {
+const ListItem = ({datetime, temp, unit, description, icon}) => {
     return (
         <View style={styles.item}>
             <Text style={styles.date}>{datetime}</Text>
-            <Text style={styles.temp}>{temp}&#176;F</Text>
+            <Text style={styles.temp}>{temp}&#176;{unit}</Text>
             <Text style={styles.temp}>{description}</Text>
             <Feather name={icon} size={50} color={'white'}/>
         </View>
